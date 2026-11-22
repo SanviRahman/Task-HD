@@ -1,0 +1,2 @@
+<?php
+require_once 'config.php';require_login();if(!is_admin()){http_response_code(403);exit('Admin only');}if($_SERVER['REQUEST_METHOD']!=='POST'){http_response_code(405);exit;}verify_csrf();$st=db()->prepare("UPDATE expenses SET status='approved',approved_by=? WHERE id=? AND status='pending'");$st->execute([user()['id'],(int)($_POST['id']??0)]);flash('Expense approved');redirect('expenses.php');

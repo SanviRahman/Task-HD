@@ -1,0 +1,1 @@
+</div><footer class="footer">© <?=date('Y')?> JV Construction Management System <span>Built for clear project accountability</span></footer></main></div><script src="assets/app.js"></script></body></html>
