@@ -52,6 +52,7 @@ $adminLinks = [
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#f7f7f1">
     <title><?= e($pageLabel) ?> | JV Construction</title>
+    <link rel="icon" type="image/svg+xml" href="assets/jv-brand-mark.svg">
     <link rel="stylesheet" href="assets/style.css?v=1.1.0">
     <link rel="stylesheet" href="assets/dashboard-v2.css?v=2.0.0">
     <script>
@@ -73,6 +74,7 @@ $adminLinks = [
     <link rel="stylesheet" href="assets/red-actions-v1.css?v=1.0.0">
     <link rel="stylesheet" href="assets/phase4-polish.css?v=4.0.0">
     <link rel="stylesheet" href="assets/phase5.css?v=5.0.0">
+    <link rel="stylesheet" href="assets/brand-v1.css?v=1.0.0">
 </head>
 <body class="jv-redesign <?= $page === 'index.php' ? 'is-dashboard' : 'is-inner-page' ?>">
 <a class="skip-link" href="#main-content">মূল কনটেন্টে যান</a>
@@ -108,8 +110,8 @@ $adminLinks = [
     <aside class="sidebar" id="app-sidebar" aria-label="প্রধান নেভিগেশন">
         <div class="sidebar-brand-row">
             <a class="logo" href="index.php" aria-label="JV Construction ড্যাশবোর্ড">
-                <span class="logo-box" aria-hidden="true">J<span>V</span></span>
-                <span class="logo-title"><b>JV Construction</b><small>PROJECT CONTROL</small></span>
+                <span class="logo-box jv-brand-emblem" aria-hidden="true"><img src="assets/jv-brand-mark.svg" alt="" width="52" height="52" decoding="async"></span>
+                <span class="logo-title"><b><span class="jv-brand-prefix">JV</span> Construction</b><small>PROJECT CONTROL</small></span>
             </a>
             <button type="button" class="sidebar-close" data-close-sidebar aria-label="Close navigation">
                 <svg class="ui-icon" aria-hidden="true"><use href="#jv-x"></use></svg>
