@@ -8,10 +8,10 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
  if(!is_admin() && !can('add_head',$pid)){http_response_code(403);exit('অনুমতি নেই');}
  if($_POST['action']==='add'){
   $name=trim($_POST['name']??'');
-  if($name!==''){$s=$pdo->prepare("INSERT INTO expense_heads(project_id,name) VALUES(?,?)");$s->execute([$pid,$name]);flash('ব্যয়ের খাত যোগ হয়েছে।');}
+  if($name!==''){$s=$pdo->prepare("INSERT INTO expense_heads(project_id,name) VALUES(?,?)");$s->execute([$pid,$name]);require_once __DIR__.'/phase5_lib.php';p5_audit_optional('expense_head.created','expense_heads',(int)$pdo->lastInsertId(),$pid,'Expense category created: '.$name);flash('ব্যয়ের খাত যোগ হয়েছে।');}
  } elseif($_POST['action']==='edit'){
   $name=trim($_POST['name']??'');$hid=(int)$_POST['head_id'];
-  if($name!==''){$s=$pdo->prepare("UPDATE expense_heads SET name=? WHERE id=? AND project_id=?");$s->execute([$name,$hid,$pid]);flash('ব্যয়ের খাতের নাম পরিবর্তন হয়েছে।');}
+  if($name!==''){$s=$pdo->prepare("UPDATE expense_heads SET name=? WHERE id=? AND project_id=?");$s->execute([$name,$hid,$pid]);require_once __DIR__.'/phase5_lib.php';p5_audit_optional('expense_head.edited','expense_heads',$hid,$pid,'Expense category renamed: '.$name);flash('ব্যয়ের খাতের নাম পরিবর্তন হয়েছে।');}
  }
  redirect('expense_heads.php');
 }

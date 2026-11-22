@@ -11,6 +11,7 @@ if($action==='edit'){
   if(!$old||!can('edit_expense',(int)$old['project_id'])||!can('edit_expense',$pid)){http_response_code(403);exit('Edit not permitted');}
   $st=$pdo->prepare('UPDATE employee_advances SET project_id=?,employee_id=?,advance_date=?,amount=?,note=? WHERE id=?');$st->execute([$pid,$eid,$date,$amount,trim($_POST['note']??''),$id]);
  }else{$st=$pdo->prepare('INSERT INTO employee_advances(project_id,employee_id,advance_date,amount,note,entered_by) VALUES(?,?,?,?,?,?)');$st->execute([$pid,$eid,$date,$amount,trim($_POST['note']??''),user()['id']]);}
+ require_once __DIR__.'/phase5_lib.php';p5_audit_optional('advance.saved','employee_advances',(int)($action==='edit'?$id:$pdo->lastInsertId()),$pid,'Employee advance saved');
  flash('Advance saved.');redirect('advances.php');
 }
 $employees=$pdo->query('SELECT id,name FROM users WHERE active=1 ORDER BY name')->fetchAll();

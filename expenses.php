@@ -10,6 +10,7 @@ if($action==='edit'){
   $id=(int)($_POST['id']??0);$s=$pdo->prepare('SELECT project_id FROM expenses WHERE id=?');$s->execute([$id]);$old=$s->fetch();if(!$old||!can('edit_expense',(int)$old['project_id'])){http_response_code(403);exit('Edit denied');}
   $s=$pdo->prepare("UPDATE expenses SET project_id=?,head_id=?,entry_date=?,amount=?,description=?,advance_employee_id=?,status='pending',approved_by=NULL WHERE id=?");$s->execute([$pid,$hid,$date,$amount,trim($_POST['description']??''),$employee?:null,$id]);
  }else{$s=$pdo->prepare('INSERT INTO expenses(project_id,head_id,entry_date,amount,description,entered_by,advance_employee_id) VALUES(?,?,?,?,?,?,?)');$s->execute([$pid,$hid,$date,$amount,trim($_POST['description']??''),user()['id'],$employee?:null]);}
+ require_once __DIR__.'/phase5_lib.php';p5_audit_optional($action==='edit'?'expense.edited':'expense.created','expenses',(int)($action==='edit'?$id:$pdo->lastInsertId()),$pid,'Expense saved (pending approval)');
  flash('Expense saved and awaiting approval.');redirect('expenses.php');
 }
 if(is_admin())$rows=$pdo->query('SELECT e.*,p.title project_title,h.name head_name,u.name user_name FROM expenses e JOIN projects p ON p.id=e.project_id JOIN expense_heads h ON h.id=e.head_id JOIN users u ON u.id=e.entered_by ORDER BY e.entry_date DESC,e.id DESC LIMIT 500')->fetchAll();

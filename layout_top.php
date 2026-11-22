@@ -13,6 +13,11 @@ $pageLabels = [
     'years.php' => 'অর্থবছর',
     'project_account.php' => 'Project Account',
     'profile.php' => 'আমার প্রোফাইল',
+    'budgets.php' => 'প্রকল্পের বাজেট',
+    'inventory.php' => 'উপকরণ ও Stock',
+    'suppliers.php' => 'Supplier & Purchase',
+    'budget_report.php' => 'Budget Report',
+    'audit_logs.php' => 'Audit Logs',
 ];
 $pageLabel = $pageLabels[$page] ?? 'JV Construction';
 require_once __DIR__ . '/profile_photo.php';
@@ -29,10 +34,15 @@ $workspaceLinks = [
     ['url' => 'ledger.php', 'icon' => 'book', 'label' => 'Employee Ledger'],
     ['url' => 'reports.php', 'icon' => 'chart', 'label' => 'রিপোর্ট'],
     ['url' => 'expense_heads.php', 'icon' => 'layers', 'label' => 'ব্যয়ের খাত'],
+    ['url' => 'budgets.php', 'icon' => 'chart', 'label' => 'প্রকল্পের বাজেট'],
+    ['url' => 'inventory.php', 'icon' => 'layers', 'label' => 'উপকরণ ও Stock'],
+    ['url' => 'budget_report.php', 'icon' => 'chart', 'label' => 'Budget Report'],
 ];
 $adminLinks = [
     ['url' => 'users.php', 'icon' => 'users', 'label' => 'ব্যবহারকারী ও অনুমতি'],
     ['url' => 'years.php', 'icon' => 'calendar', 'label' => 'অর্থবছর'],
+    ['url' => 'suppliers.php', 'icon' => 'building', 'label' => 'Supplier & Purchase'],
+    ['url' => 'audit_logs.php', 'icon' => 'clipboard', 'label' => 'Audit Logs'],
 ];
 ?>
 <!doctype html>
@@ -62,6 +72,7 @@ $adminLinks = [
     <?php endif; ?>
     <link rel="stylesheet" href="assets/red-actions-v1.css?v=1.0.0">
     <link rel="stylesheet" href="assets/phase4-polish.css?v=4.0.0">
+    <link rel="stylesheet" href="assets/phase5.css?v=5.0.0">
 </head>
 <body class="jv-redesign <?= $page === 'index.php' ? 'is-dashboard' : 'is-inner-page' ?>">
 <a class="skip-link" href="#main-content">মূল কনটেন্টে যান</a>

@@ -34,6 +34,47 @@ if (is_admin()) {
 $otherProjects = max(0, $projects - $running - $completed);
 $runningArc = $projects ? (int) round($running * 360 / $projects) : 0;
 $completedArc = $projects ? (int) round(($running + $completed) * 360 / $projects) : 0;
+
+// Phase 5 financial insights are optional until phase5_upgrade.sql is imported.
+// Existing dashboard metrics above are intentionally unchanged.
+require_once __DIR__ . '/phase5_lib.php';
+$p5HomeReady = p5_ready();
+$p5HomeRows = []; $p5HomeBudget = $p5HomeCommitted = $p5HomeDue = 0.0; $p5HomeLow = 0;
+$p5HomeMonths = []; $p5HomeMax = 1.0;
+if ($p5HomeReady) {
+    $p5HomeRows = p5_budget_rows(); // Only projects with view_report permission.
+    foreach($p5HomeRows as $b){
+        $p5HomeBudget += (float)$b['budget_amount'];
+        $p5HomeCommitted += p5_amount_spent($b);
+        $p5HomeDue += (float)$b['purchase_amount']-(float)$b['supplier_paid'];
+    }
+    // Six month financial trend: current user can only see assigned report projects.
+    $reportIds = p5_project_ids('view_report');
+    $periodStart = new DateTimeImmutable('first day of -5 months');
+    $byMonth = [];
+    if ($reportIds) {
+        $in = implode(',', $reportIds); // DB-issued integer identifiers only.
+        $monthlyQuery = "SELECT ym,SUM(expense) expense,SUM(purchases) purchases FROM (
+            SELECT DATE_FORMAT(entry_date,'%Y-%m') ym,SUM(amount) expense,0 purchases FROM expenses WHERE status='approved' AND project_id IN ($in) AND entry_date BETWEEN ? AND ? GROUP BY DATE_FORMAT(entry_date,'%Y-%m')
+            UNION ALL
+            SELECT DATE_FORMAT(purchase_date,'%Y-%m') ym,0 expense,SUM(total_amount) purchases FROM supplier_purchases WHERE project_id IN ($in) AND purchase_date BETWEEN ? AND ? GROUP BY DATE_FORMAT(purchase_date,'%Y-%m')
+        ) t GROUP BY ym ORDER BY ym";
+        $ms = $pdo->prepare($monthlyQuery);
+        $ms->execute([$periodStart->format('Y-m-d'),date('Y-m-d'),$periodStart->format('Y-m-d'),date('Y-m-d')]);
+        foreach($ms->fetchAll() as $m){$byMonth[$m['ym']]=$m;}
+    }
+    for($n=0;$n<6;$n++){
+        $month=$periodStart->modify('+'.$n.' months')->format('Y-m');
+        $record=['label'=>$month,'expense'=>(float)($byMonth[$month]['expense']??0),'purchase'=>(float)($byMonth[$month]['purchases']??0)];
+        $p5HomeMax=max($p5HomeMax,$record['expense']+$record['purchase']);
+        $p5HomeMonths[]=$record;
+    }
+    $viewProjects = p5_project_ids('view_project');
+    if ($viewProjects) {
+        $in = implode(',', $viewProjects);
+        $p5HomeLow = (int)$pdo->query("SELECT COUNT(*) FROM inventory_items WHERE project_id IN ($in) AND minimum_qty>0 AND quantity_on_hand<=minimum_qty")->fetchColumn();
+    }
+}
 include 'layout_top.php';
 ?>
 <section class="dashboard-hero" aria-labelledby="dashboard-title">
@@ -114,4 +155,18 @@ include 'layout_top.php';
 </div>
 
 <section class="dashboard-shortcuts" aria-label="দ্রুত নেভিগেশন"><div class="shortcut-title"><span>QUICK ACCESS</span><h2>আপনার পরবর্তী কাজ</h2></div><div class="shortcut-links"><a href="projects.php"><svg class="ui-icon" aria-hidden="true"><use href="#jv-building"></use></svg>প্রকল্পসমূহ <svg class="ui-icon shortcut-chevron" aria-hidden="true"><use href="#jv-chevron"></use></svg></a><a href="expenses.php"><svg class="ui-icon" aria-hidden="true"><use href="#jv-receipt"></use></svg>ব্যয় ব্যবস্থাপনা <svg class="ui-icon shortcut-chevron" aria-hidden="true"><use href="#jv-chevron"></use></svg></a><a href="advances.php"><svg class="ui-icon" aria-hidden="true"><use href="#jv-wallet"></use></svg>কর্মীর অগ্রিম <svg class="ui-icon shortcut-chevron" aria-hidden="true"><use href="#jv-chevron"></use></svg></a></div></section>
+
+<?php if($p5HomeReady): ?>
+<section class="p5-page p5-home-module" aria-labelledby="phase5-home-heading">
+  <div class="p5-surface"><div class="p5-section-heading"><div><span class="p5-overline">PROJECT FINANCE / PHASE 5</span><h2 id="phase5-home-heading">প্রকল্পের আর্থিক ও উপকরণ চিত্র</h2><p>অনুমোদিত খরচ ও Supplier Purchase-এর ভিত্তিতে হিসাব।</p></div><a class="p5-link" href="budget_report.php">বিস্তারিত Report ↗</a></div>
+  <div class="p5-kpis"><article class="p5-kpi"><span class="p5-kpi-label">নির্ধারিত বাজেট</span><strong><?= p5_cash_view($p5HomeBudget) ?></strong><small>রিপোর্ট দেখার অনুমতিপ্রাপ্ত প্রকল্প</small></article><article class="p5-kpi"><span class="p5-kpi-label">হিসাবভুক্ত খরচ</span><strong><?= p5_cash_view($p5HomeCommitted) ?></strong><small>Approved Expense + Supplier Purchase</small></article><article class="p5-kpi"><span class="p5-kpi-label">Supplier Due</span><strong><?= p5_cash_view($p5HomeDue) ?></strong><small>অপরিশোধিত ক্রয়মূল্য</small></article><article class="p5-kpi"><span class="p5-kpi-label">Stock Alert</span><strong><?= number_format($p5HomeLow) ?></strong><small>সীমার নিচে উপকরণ</small></article></div>
+  <div class="p5-home-links"><a href="budgets.php" class="p5-btn p5-btn-outline">Budget দেখুন</a><a href="inventory.php" class="p5-btn p5-btn-outline">Inventory</a><?php if(is_admin()): ?><a href="suppliers.php" class="p5-btn p5-btn-primary">Supplier & Purchase ↗</a><?php endif; ?></div>
+  <div class="p5-section-heading"><div><span class="p5-overline">MONTHLY SPENDING TREND</span><h2>সাম্প্রতিক ৬ মাসের খরচ</h2><p>Approved Expenses ও Supplier Purchases (Payment নয়)</p></div></div>
+  <?php if(array_sum(array_map(fn($m)=>$m['expense']+$m['purchase'],$p5HomeMonths))>0): ?>
+   <div class="p5-chart"><?php foreach($p5HomeMonths as $m): ?><div class="p5-chart-row"><span><?= e($m['label']) ?></span><div class="p5-chart-track"><i class="p5-chart-exp" style="width:<?= round($m['expense']/$p5HomeMax*100,2) ?>%"></i><i class="p5-chart-pur" style="width:<?= round($m['purchase']/$p5HomeMax*100,2) ?>%"></i></div><strong><?= p5_cash_view($m['expense']+$m['purchase']) ?></strong></div><?php endforeach; ?></div>
+  <?php else: ?><div class="p5-empty">নির্বাচিত প্রকল্পে গত ৬ মাসে কোনো অনুমোদিত খরচ নেই।</div><?php endif; ?></div>
+</section>
+<?php elseif(is_admin()): ?>
+<div class="p5-page"><p class="p5-note">Phase 5 Modules চালু করতে ডেটাবেস Backup নিয়ে <strong>phase5_upgrade.sql</strong> Import করুন। পুরোনো Dashboard আগের মতোই কাজ করছে।</p></div>
+<?php endif; ?>
 <?php include 'layout_bottom.php'; ?>
