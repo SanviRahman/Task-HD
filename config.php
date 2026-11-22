@@ -22,8 +22,14 @@ function e($value): string { return htmlspecialchars((string)$value, ENT_QUOTES,
 function user(): ?array { return $_SESSION['user'] ?? null; }
 function require_login(): void { if (!user()) { header('Location: login.php'); exit; } }
 function is_admin(): bool { return user() && user()['role'] === 'admin'; }
+function valid_project_permission(string $permission): bool {
+    return in_array($permission, [
+        'view_project', 'add_expense', 'edit_expense', 'delete_expense',
+        'add_head', 'view_report', 'approve_expense', 'close_project'
+    ], true);
+}
 function can(string $permission, ?int $projectId = null): bool {
-    if (!user()) return false;
+    if (!user() || !valid_project_permission($permission)) return false;
     if (is_admin()) return true;
     $sql = "SELECT {$permission} FROM project_assignments WHERE user_id=? AND project_id=?";
     $st = db()->prepare($sql);
@@ -43,6 +49,7 @@ function flash(string $message, string $type='success'): void { $_SESSION['flash
 function redirect(string $url): never { header("Location: $url"); exit; }
 
 function allowed_projects(string $permission='view_project'): array {
+ if (!user() || !valid_project_permission($permission)) return [];
  $pdo=db(); if(is_admin()) return $pdo->query("SELECT id,title,status FROM projects ORDER BY title")->fetchAll();
  $st=$pdo->prepare("SELECT p.id,p.title,p.status FROM projects p JOIN project_assignments a ON a.project_id=p.id WHERE a.user_id=? AND a.$permission=1 ORDER BY p.title");
  $st->execute([user()['id']]); return $st->fetchAll();

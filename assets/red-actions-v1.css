@@ -1,0 +1,80 @@
+/* Brand action theme: red replaces the earlier apricot/coral CTA buttons.
+   Loaded last across every app page, including both dark and light mode. */
+body.jv-redesign {
+  --w-accent:#b91f42;
+  --w-accent-hover:#941632;
+  --w-accent-light:#fdeaf0;
+  --jv-red-soft:#fff0f3;
+  --jv-red-stroke:#eab5c0;
+}
+body.jv-redesign .btn.primary,
+body.jv-redesign .btn.danger,
+body.jv-redesign .record-btn-primary,
+body.jv-redesign .record-btn-approve,
+body.jv-redesign .action-coral {
+  background:var(--w-accent);
+  color:#fff;
+  border-color:transparent;
+  box-shadow:0 5px 13px #9d17301c;
+}
+body.jv-redesign .btn.primary:hover,
+body.jv-redesign .btn.danger:hover,
+body.jv-redesign .record-btn-primary:hover,
+body.jv-redesign .record-btn-approve:hover,
+body.jv-redesign .action-coral:hover {
+  background:var(--w-accent-hover);
+  color:#fff;
+  border-color:transparent;
+}
+body.jv-redesign .btn:not(.primary):not(.danger),
+body.jv-redesign .record-btn-secondary,
+body.jv-redesign .record-clear {
+  color:var(--w-accent);
+  background:var(--jv-red-soft);
+  border:1px solid var(--jv-red-stroke);
+}
+body.jv-redesign .btn:not(.primary):not(.danger):hover,
+body.jv-redesign .record-btn-secondary:hover,
+body.jv-redesign .record-clear:hover {
+  color:var(--w-accent-hover);
+  background:#f8dbe2;
+  border-color:var(--w-accent-hover);
+}
+body.jv-redesign .records-intro h1 em { color:var(--w-accent); }
+body.jv-redesign .record-field input:focus-visible,
+body.jv-redesign .record-field select:focus-visible { border-color:var(--w-accent); }
+body.jv-redesign .records-kicker-dot { background:var(--w-accent); }
+body.jv-redesign .sidebar .nav.active { box-shadow:inset 3px 0 #ed5979,0 6px 16px #0a0b161c; }
+body.jv-redesign .sidebar .nav.active .nav-icon { color:#ffb9c9; }
+body.jv-redesign .active-indicator { background:#f86f90; }
+body.jv-redesign .header-report-link:hover { background:var(--jv-red-soft); color:var(--w-accent); border-color:var(--jv-red-stroke); }
+body.jv-redesign .record-btn:focus-visible,
+body.jv-redesign .btn:focus-visible { outline:3px solid var(--w-accent); outline-offset:3px; }
+:root[data-theme="dark"] body.jv-redesign {
+  --w-accent:#c52549;
+  --w-accent-hover:#a61b3b;
+  --w-accent-light:#3d2434;
+  --jv-red-soft:#442a3c;
+  --jv-red-stroke:#8c425a;
+}
+:root[data-theme="dark"] body.jv-redesign .btn.primary,
+:root[data-theme="dark"] body.jv-redesign .btn.danger,
+:root[data-theme="dark"] body.jv-redesign .record-btn-primary,
+:root[data-theme="dark"] body.jv-redesign .record-btn-approve,
+:root[data-theme="dark"] body.jv-redesign .action-coral { background:var(--w-accent); color:#fff; }
+:root[data-theme="dark"] body.jv-redesign .btn.primary:hover,
+:root[data-theme="dark"] body.jv-redesign .btn.danger:hover,
+:root[data-theme="dark"] body.jv-redesign .record-btn-primary:hover,
+:root[data-theme="dark"] body.jv-redesign .record-btn-approve:hover,
+:root[data-theme="dark"] body.jv-redesign .action-coral:hover { background:var(--w-accent-hover); color:#fff; }
+:root[data-theme="dark"] body.jv-redesign .btn:not(.primary):not(.danger),
+:root[data-theme="dark"] body.jv-redesign .record-btn-secondary,
+:root[data-theme="dark"] body.jv-redesign .record-clear { background:var(--jv-red-soft); color:#ffc6d2; border-color:var(--jv-red-stroke); }
+:root[data-theme="dark"] body.jv-redesign .btn:not(.primary):not(.danger):hover,
+:root[data-theme="dark"] body.jv-redesign .record-btn-secondary:hover,
+:root[data-theme="dark"] body.jv-redesign .record-clear:hover { background:#623347; color:#fff; border-color:#e48ba1; }
+
+/* Login is intentionally separate from the authenticated app shell. */
+body.auth-bg .auth-card .btn.primary { background:#b91f42; color:#fff; box-shadow:0 6px 16px #8e17352a; }
+body.auth-bg .auth-card .btn.primary:hover { background:#941632; color:#fff; }
+body.auth-bg .auth-card .btn.primary:focus-visible { outline:3px solid #db4967; outline-offset:3px; }

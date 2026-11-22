@@ -1,0 +1,90 @@
+/* JV Construction | Phase 3 finance and administration pages.
+   Presentation-only: uses the same base components as the Projects/Expenses UI. */
+body.jv-redesign .phase3-page { padding-bottom:20px; }
+body.jv-redesign .phase3-page .finance-intro { min-height:205px; }
+body.jv-redesign .phase3-page .finance-intro h1 { max-width:680px; }
+body.jv-redesign .phase3-page .finance-intro .intro-illustration { border-radius:26px; transform:rotate(-8deg); }
+body.jv-redesign .phase3-page .record-form { gap:20px; }
+body.jv-redesign .phase3-page .record-form .record-field input,
+body.jv-redesign .phase3-page .record-form .record-field select { font-size:13px; }
+body.jv-redesign .phase3-page .record-form input::placeholder,
+body.jv-redesign .phase3-page .finance-inline-edit input::placeholder { color:var(--w-faint); opacity:1; }
+body.jv-redesign .phase3-page .record-field label { color:var(--w-ink); }
+body.jv-redesign .phase3-page .record-field .required { color:var(--w-accent); }
+body.jv-redesign .phase3-page .records-toolbar { display:flex; flex-wrap:wrap; align-items:end; gap:12px; }
+body.jv-redesign .phase3-page .records-toolbar[hidden],
+body.jv-redesign .phase3-page [hidden] { display:none!important; }
+body.jv-redesign .phase3-page .records-toolbar .record-search { flex:1 1 260px; max-width:none; min-width:0; }
+body.jv-redesign .phase3-page .records-toolbar .record-select-wrap { flex:0 1 220px; min-width:160px; }
+body.jv-redesign .phase3-page .records-toolbar .record-clear { flex:0 0 auto; }
+body.jv-redesign .phase3-page .finance-summary { display:grid; gap:16px; }
+body.jv-redesign .phase3-page .finance-section-line { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; }
+body.jv-redesign .phase3-page .finance-section-line h2 { margin:3px 0 1px; font-size:20px; line-height:1.4; font-weight:850; color:var(--w-ink); }
+body.jv-redesign .phase3-page .finance-section-line p { font-size:12px; color:var(--w-muted); margin:2px 0; }
+body.jv-redesign .phase3-page .finance-text-metric { font-size:clamp(18px,1.65vw,24px); letter-spacing:0; }
+body.jv-redesign .phase3-page .finance-negative { color:#be2d45!important; }
+body.jv-redesign .phase3-page .finance-amount { font-variant-numeric:tabular-nums; font-weight:750; }
+body.jv-redesign .phase3-page .finance-statement-note { padding:14px 25px; color:var(--w-muted); background:var(--w-soft); border-bottom:1px solid var(--w-border); font-size:12px; line-height:1.7; }
+body.jv-redesign .phase3-page .finance-alert { padding:24px 27px; color:#9e1936; background:#fff0f3; border-left:4px solid #bf2746; font-weight:700; font-size:13px; }
+body.jv-redesign .phase3-page .finance-helper-card { border:1px dashed var(--w-border); background:var(--w-surface); border-radius:16px; padding:23px 27px; display:flex; gap:15px; align-items:center; color:var(--w-muted); }
+body.jv-redesign .phase3-page .finance-helper-card>.ui-icon { width:35px; height:35px; flex-shrink:0; color:var(--w-indigo); }
+body.jv-redesign .phase3-page .finance-helper-card strong { color:var(--w-ink); font-size:14px; }
+body.jv-redesign .phase3-page .finance-helper-card p { margin:3px 0 0; font-size:12px; }
+body.jv-redesign .phase3-page .finance-pill { display:inline-flex; align-items:center; gap:8px; background:var(--w-indigo-light); color:var(--w-indigo); border-radius:999px; padding:7px 11px; font-size:11px; font-weight:750; max-width:100%; }
+body.jv-redesign .phase3-page .finance-pill .ui-icon { width:14px; height:14px; }
+body.jv-redesign .phase3-page .finance-inline-edit { display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
+body.jv-redesign .phase3-page .finance-inline-edit input { flex:1 1 130px; min-width:100px; max-width:300px; border:1px solid var(--w-border); background:var(--w-surface); color:var(--w-ink); border-radius:10px; min-height:39px; padding:9px 11px; font-size:12px; }
+body.jv-redesign .phase3-page .finance-inline-edit input:focus-visible { outline:2px solid var(--w-indigo); outline-offset:1px; }
+body.jv-redesign .phase3-page .finance-permission-form-top { padding-bottom:20px; }
+body.jv-redesign .phase3-page .finance-selection-note { grid-column:1 / -1; padding:12px 16px; background:var(--w-soft); border:1px solid var(--w-border); color:var(--w-muted); font-size:12px; border-radius:11px; }
+body.jv-redesign .phase3-page .finance-permission-heading { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px; margin:0 27px; padding:19px 0 15px; border-top:1px solid var(--w-border); }
+body.jv-redesign .phase3-page .finance-permission-heading strong { display:block; color:var(--w-ink); font-size:15px; }
+body.jv-redesign .phase3-page .finance-permission-heading p { color:var(--w-muted); margin:2px 0 0; font-size:12px; }
+body.jv-redesign .phase3-page .finance-permission-heading>span { border:1px solid var(--w-border); padding:7px 12px; border-radius:999px; font-size:11px; color:var(--w-muted); white-space:nowrap; }
+body.jv-redesign .phase3-page .finance-permission-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; padding:0 27px 23px; }
+body.jv-redesign .phase3-page .finance-permission { position:relative; display:flex; gap:13px; align-items:center; padding:14px 15px; background:var(--w-soft); border:1px solid var(--w-border); border-radius:12px; min-width:0; cursor:pointer; transition:background .17s,border-color .17s; }
+body.jv-redesign .phase3-page .finance-permission:hover { border-color:var(--w-indigo); }
+body.jv-redesign .phase3-page .finance-permission:has(input:checked) { background:var(--w-indigo-light); border-color:var(--w-indigo); }
+body.jv-redesign .phase3-page .finance-permission:has(input:focus-visible) { outline:3px solid var(--focus); outline-offset:2px; }
+body.jv-redesign .phase3-page .finance-permission input { position:absolute; opacity:0; width:1px; height:1px; }
+body.jv-redesign .phase3-page .finance-permission>span:first-of-type { flex:1; min-width:0; }
+body.jv-redesign .phase3-page .finance-permission strong { display:block; font-size:12px; font-weight:800; color:var(--w-ink); }
+body.jv-redesign .phase3-page .finance-permission small { display:block; font-size:10px; margin-top:2px; color:var(--w-muted); overflow-wrap:anywhere; }
+body.jv-redesign .phase3-page .permission-switch { width:38px; height:22px; border-radius:999px; background:#b9c1cf; flex:0 0 auto; position:relative; transition:background .17s; }
+body.jv-redesign .phase3-page .permission-switch:before { content:""; position:absolute; width:16px; height:16px; left:3px; top:3px; border-radius:50%; background:white; box-shadow:0 1px 4px #0002; transition:transform .17s; }
+body.jv-redesign .phase3-page .finance-permission input:checked~.permission-switch { background:var(--w-indigo); }
+body.jv-redesign .phase3-page .finance-permission input:checked~.permission-switch:before { transform:translateX(16px); }
+body.jv-redesign .phase3-page .finance-permission-actions { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:18px; padding:18px 27px 25px; border-top:1px solid var(--w-border); }
+body.jv-redesign .phase3-page .finance-caution { display:flex; align-items:center; gap:10px; color:var(--w-muted); font-size:12px; line-height:1.6; max-width:550px; }
+body.jv-redesign .phase3-page .finance-caution .ui-icon { color:var(--w-teal); flex-shrink:0; }
+body.jv-redesign .phase3-page .finance-permission-tags { display:flex; gap:6px; flex-wrap:wrap; }
+body.jv-redesign .phase3-page .finance-tag { border:1px solid var(--w-border); background:var(--w-soft); color:var(--w-muted); border-radius:7px; padding:4px 7px; font-size:10px; font-weight:700; }
+body.jv-redesign .phase3-page .finance-muted { color:var(--w-faint); font-size:11px; }
+:root[data-theme="dark"] body.jv-redesign .phase3-page .finance-negative { color:#ff95a9!important; }
+:root[data-theme="dark"] body.jv-redesign .phase3-page .finance-alert { background:#4c2637; color:#ffd6df; border-color:#fb6484; }
+:root[data-theme="dark"] body.jv-redesign .phase3-page .permission-switch { background:#5b6783; }
+@media(max-width:1100px) { body.jv-redesign .phase3-page .finance-permission-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:720px) { body.jv-redesign .phase3-page .finance-permission-grid { grid-template-columns:minmax(0,1fr); padding:0 18px 20px; } body.jv-redesign .phase3-page .finance-permission-heading { margin:0 18px; } body.jv-redesign .phase3-page .finance-permission-actions { padding:18px; } body.jv-redesign .phase3-page .records-toolbar { flex-wrap:wrap; padding:16px; } body.jv-redesign .phase3-page .records-toolbar .record-search { flex-basis:100%; } body.jv-redesign .phase3-page .records-toolbar .record-select-wrap { flex:1 1 150px; } body.jv-redesign .phase3-page .finance-statement-note { padding:14px 18px; } }
+@media(max-width:440px) { body.jv-redesign .phase3-page .finance-intro { padding:22px 19px; } body.jv-redesign .phase3-page .finance-helper-card { padding:20px; align-items:flex-start; } body.jv-redesign .phase3-page .finance-permission-actions>.record-btn { width:100%; } body.jv-redesign .phase3-page .finance-inline-edit input { width:100%; max-width:none; flex:1 1 100%; } body.jv-redesign .phase3-page .finance-inline-edit .record-btn { width:100%; } body.jv-redesign .phase3-page .records-toolbar .record-select-wrap { flex:1 1 100%; } }
+@media(prefers-reduced-motion:reduce) { body.jv-redesign .phase3-page *,body.jv-redesign .phase3-page *:before { transition:none!important; scroll-behavior:auto!important; } }
+@media print {
+  body.jv-redesign { background:white!important; color:#171717!important; }
+  body.jv-redesign .sidebar,body.jv-redesign .topbar,body.jv-redesign .footer,body.jv-redesign .sidebar-backdrop,body.jv-redesign .workspace-location { display:none!important; }
+  body.jv-redesign .main,body.jv-redesign .content { margin:0!important; width:100%!important; max-width:none!important; padding:0!important; }
+  body.jv-redesign .phase3-page { color:#151515!important; gap:12px!important; }
+  body.jv-redesign .phase3-page .no-print,body.jv-redesign .phase3-page .records-intro-action,body.jv-redesign .phase3-page .records-pagination,body.jv-redesign .phase3-page .records-toolbar,body.jv-redesign .phase3-page .record-form { display:none!important; }
+  body.jv-redesign .phase3-page .record-surface,body.jv-redesign .phase3-page .record-metric { border-color:#ddd!important; background:#fff!important; box-shadow:none!important; break-inside:avoid; }
+  body.jv-redesign .phase3-page .record-surface-header { background:white!important; }
+  body.jv-redesign .phase3-page .records-table-wrap { overflow:visible!important; display:block!important; }
+  body.jv-redesign .phase3-page .records-table { display:table!important; width:100%!important; min-width:0!important; }
+  body.jv-redesign .phase3-page .records-table thead { display:table-header-group!important; }
+  body.jv-redesign .phase3-page .records-table tbody { display:table-row-group!important; }
+  body.jv-redesign .phase3-page .records-table tbody tr { display:table-row!important; box-shadow:none!important; }
+  body.jv-redesign .phase3-page .records-table tbody td { display:table-cell!important; }
+  body.jv-redesign .phase3-page .records-table tbody td:before { display:none!important; }
+  body.jv-redesign .phase3-page .records-table tr[hidden] { display:table-row!important; }
+  body.jv-redesign .phase3-page .records-table th,body.jv-redesign .phase3-page .records-table td { font-size:9pt!important; color:#151515!important; padding:7px!important; }
+  body.jv-redesign .phase3-page .records-intro { min-height:auto; padding:6px 0 12px; box-shadow:none!important; border:none!important; background:#fff!important; }
+  body.jv-redesign .phase3-page .records-intro .intro-decor { display:none!important; }
+  body.jv-redesign .phase3-page .record-status { color:#111!important; background:transparent!important; border:1px solid #aaa!important; }
+}
