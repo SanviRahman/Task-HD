@@ -66,7 +66,7 @@ $adminLinks = [
     </script>
     <link rel="stylesheet" href="assets/workspace-polish.css?v=3.1.0">
     <?php if (in_array($page, ['projects.php', 'expenses.php', 'advances.php', 'ledger.php', 'reports.php', 'expense_heads.php', 'users.php', 'years.php'], true)): ?>
-    <link rel="stylesheet" href="assets/records-v1.css?v=1.0.0">
+    <link rel="stylesheet" href="assets/records-v1.css?v=1.1.0">
     <?php endif; ?>
     <?php if (in_array($page, ['ledger.php', 'reports.php', 'expense_heads.php', 'users.php', 'years.php'], true)): ?>
     <link rel="stylesheet" href="assets/phase3-v1.css?v=1.0.0">

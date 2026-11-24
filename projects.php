@@ -1,7 +1,30 @@
 <?php
 require_once 'config.php'; require_login(); $pdo=db();
-if($_SERVER['REQUEST_METHOD']==='POST' && is_admin()){verify_csrf();$st=$pdo->prepare("INSERT INTO projects(financial_year_id,title,tender_id,project_head,start_date,duration_days) VALUES(?,?,?,?,?,?)");$st->execute([$_POST['financial_year_id'],trim($_POST['title']),trim($_POST['tender_id']),trim($_POST['project_head']),$_POST['start_date'],max(1,(int)$_POST['duration_days'])]);require_once __DIR__.'/phase5_lib.php';$newId=(int)$pdo->lastInsertId();p5_audit_optional('project.created','projects',$newId,$newId,'New construction project created');flash('Project created. Assign users and permissions from Users & permissions.');redirect('projects.php');}
-if(is_admin())$projects=$pdo->query("SELECT p.*,f.name fy FROM projects p JOIN financial_years f ON f.id=p.financial_year_id ORDER BY p.id DESC")->fetchAll();else{$st=$pdo->prepare("SELECT p.*,f.name fy FROM projects p JOIN financial_years f ON f.id=p.financial_year_id JOIN project_assignments a ON a.project_id=p.id WHERE a.user_id=? AND a.view_project=1 ORDER BY p.id DESC");$st->execute([user()['id']]);$projects=$st->fetchAll();}
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && is_admin()) {
+    verify_csrf();
+    require_once __DIR__.'/phase5_lib.php';
+    p5_require_ready();
+    $budget = p5_money($_POST['budget_amount'] ?? '');
+    if ($budget === null) p5_bad_request('A positive project budget is required.');
+
+    $pdo->beginTransaction();
+    try {
+        $st = $pdo->prepare('INSERT INTO projects(financial_year_id,title,tender_id,project_head,start_date,duration_days) VALUES(?,?,?,?,?,?)');
+        $st->execute([$_POST['financial_year_id'],trim($_POST['title']),trim($_POST['tender_id']),trim($_POST['project_head']),$_POST['start_date'],max(1,(int)$_POST['duration_days'])]);
+        $newId = (int)$pdo->lastInsertId();
+        $st = $pdo->prepare('INSERT INTO project_budgets(project_id,budget_amount,updated_by) VALUES(?,?,?)');
+        $st->execute([$newId,$budget,(int)user()['id']]);
+        $pdo->commit();
+    } catch (Throwable $ex) {
+        if ($pdo->inTransaction()) $pdo->rollBack();
+        throw $ex;
+    }
+    p5_audit_optional('project.created','projects',$newId,$newId,'New construction project created');
+    p5_audit_optional('budget.saved','project_budgets',$newId,$newId,'Initial budget BDT '.$budget);
+    flash('Project created. Assign users and permissions from Users & permissions.');
+    redirect('projects.php');
+}
+if(is_admin())$projects=$pdo->query("SELECT p.*,f.name fy,b.budget_amount,1 AS view_report FROM projects p JOIN financial_years f ON f.id=p.financial_year_id LEFT JOIN project_budgets b ON b.project_id=p.id ORDER BY p.id DESC")->fetchAll();else{$st=$pdo->prepare("SELECT p.*,f.name fy,b.budget_amount,a.view_report FROM projects p JOIN financial_years f ON f.id=p.financial_year_id JOIN project_assignments a ON a.project_id=p.id LEFT JOIN project_budgets b ON b.project_id=p.id WHERE a.user_id=? AND a.view_project=1 ORDER BY p.id DESC");$st->execute([user()['id']]);$projects=$st->fetchAll();}
 $years=$pdo->query("SELECT * FROM financial_years ORDER BY start_date DESC")->fetchAll();$projectCount = count($projects);
 $projectRunning = count(array_filter($projects, fn($p) => $p['status'] === 'running'));
 $projectCompleted = count(array_filter($projects, fn($p) => $p['status'] === 'completed'));
@@ -38,6 +61,7 @@ include 'layout_top.php';?>
                 <div class="record-field"><label for="projectHead">প্রকল্প প্রধান <span class="optional">(ঐচ্ছিক)</span></label><input id="projectHead" name="project_head" type="text" maxlength="120" placeholder="যেমন: প্রকৌশলী মো. রহমান" autocomplete="off"></div>
                 <div class="record-field"><label for="projectStart">শুরুর তারিখ <span class="required" aria-label="required">*</span></label><input id="projectStart" type="date" name="start_date" placeholder="দিন / মাস / বছর" required></div>
                 <div class="record-field"><label for="projectDuration">মেয়াদ (দিন) <span class="required" aria-label="required">*</span></label><input id="projectDuration" type="number" min="1" step="1" name="duration_days" value="30" placeholder="যেমন: ১৮০" inputmode="numeric" required></div>
+                <div class="record-field"><label for="projectBudget">অনুমোদিত সর্বমোট বাজেট (৳) <span class="required" aria-label="required">*</span></label><input id="projectBudget" name="budget_amount" type="number" min="0.01" step="0.01" max="999999999999.99" inputmode="decimal" placeholder="যেমন: 2500000.00" required><span class="field-hint">চলমান বা নতুন প্রকল্পের অনুমোদিত মোট বাজেট লিখুন।</span></div>
                 <div class="record-form-actions"><p><svg class="ui-icon" aria-hidden="true"><use href="#jv-check"></use></svg> তথ্যগুলো যাচাই করে সংরক্ষণ করুন।</p><button class="record-btn record-btn-primary" type="submit"><svg class="ui-icon" aria-hidden="true"><use href="#jv-plus"></use></svg> প্রকল্প তৈরি করুন</button></div>
             </form>
         <?php endif; ?>
@@ -53,12 +77,13 @@ include 'layout_top.php';?>
                 <label class="record-select-wrap"><span>অর্থবছর</span><select aria-label="অর্থবছর" data-filter="year"><option value="">সব অর্থবছর</option><?php foreach ($years as $y): ?><option value="<?= (int) $y['id'] ?>"><?= e($y['name']) ?></option><?php endforeach; ?></select></label>
                 <button class="record-clear" type="button" data-clear-filters>Reset</button>
             </div>
-            <div class="records-table-wrap"><table class="records-table" data-record-table><thead><tr><th scope="col">প্রকল্প</th><th scope="col">দরপত্র</th><th scope="col">অর্থবছর</th><th scope="col">শুরুর তারিখ</th><th scope="col">মেয়াদ</th><th scope="col">অবস্থা</th></tr></thead><tbody>
+            <div class="records-table-wrap"><table class="records-table" data-record-table><thead><tr><th scope="col">প্রকল্প</th><th scope="col">দরপত্র</th><th scope="col">অর্থবছর</th><th scope="col">মোট বাজেট</th><th scope="col">শুরুর তারিখ</th><th scope="col">মেয়াদ</th><th scope="col">অবস্থা</th></tr></thead><tbody>
                 <?php foreach ($projects as $p): ?>
                 <tr data-record-row data-year="<?= (int) $p['financial_year_id'] ?>" data-status="<?= e($p['status']) ?>">
                     <td data-label="প্রকল্প"><span class="record-main"><span class="table-record-icon"><svg class="ui-icon" aria-hidden="true"><use href="#jv-building"></use></svg></span><span><strong><?= e($p['title']) ?></strong><small><?= e($p['project_head'] ?: 'প্রধান নির্ধারিত নেই') ?></small></span></span></td>
                     <td data-label="দরপত্র"><span class="record-code"><?= e($p['tender_id']) ?></span></td>
                     <td data-label="অর্থবছর"><?= e($p['fy']) ?></td>
+                    <td data-label="মোট বাজেট"><?php if (is_admin() || (int) $p['view_report'] === 1): ?><?php if ($p['budget_amount'] !== null && (float) $p['budget_amount'] > 0): ?><strong class="table-amount">৳<?= number_format((float) $p['budget_amount'], 2) ?></strong><?php else: ?>নির্ধারিত নয়<?php endif; ?><?php else: ?>—<?php endif; ?></td>
                     <td data-label="শুরুর তারিখ"><time datetime="<?= e($p['start_date']) ?>"><?= e($p['start_date']) ?></time></td>
                     <td data-label="মেয়াদ"><?= (int) $p['duration_days'] ?> দিন</td>
                     <td data-label="অবস্থা"><span class="record-status <?= e($p['status']) ?>"><span class="status-dot" aria-hidden="true"></span><?= e($projectStatusLabels[$p['status']] ?? ucfirst($p['status'])) ?></span></td>

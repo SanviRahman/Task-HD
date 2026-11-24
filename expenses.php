@@ -21,6 +21,17 @@ $expenseApproved = count(array_filter($rows, fn($r) => $r['status'] === 'approve
 $expenseApprovedTotal = array_reduce($rows, fn($total, $r) => $total + ($r['status'] === 'approved' ? (float) $r['amount'] : 0), 0.0);
 $expenseStatusLabels = ['pending' => 'অপেক্ষমাণ', 'approved' => 'অনুমোদিত', 'rejected' => 'বাতিল'];
 $formProjects = array_values(array_filter($projects, fn($p) => $p['status'] !== 'closed' && (can('add_expense', (int) $p['id']) || can('edit_expense', (int) $p['id']))));
+require_once __DIR__.'/phase5_lib.php';
+$projectBudgetInfo = [];
+if (p5_ready()) {
+    foreach (p5_budget_rows() as $budgetRow) {
+        $amount = (float)$budgetRow['budget_amount'];
+        $projectBudgetInfo[(int)$budgetRow['id']] = [
+            'budget' => $amount > 0 ? p5_cash_view($amount) : '',
+            'remaining' => $amount > 0 ? p5_cash_view($amount - p5_amount_spent($budgetRow)) : ''
+        ];
+    }
+}
 include 'layout_top.php';?>
 <div class="records-page records-expenses" data-records-page="expenses">
     <section class="records-intro" aria-labelledby="expenses-heading"><div class="records-intro-copy"><span class="records-kicker"><svg class="ui-icon" aria-hidden="true"><use href="#jv-receipt"></use></svg> FINANCE WORKSPACE <span class="records-kicker-dot"></span> 02 / EXPENSES</span><h1 id="expenses-heading">ব্যয়ের প্রতিটি তথ্য, <em>পরিষ্কার হিসাব।</em></h1><p>দৈনিক ব্যয় লিখুন, প্রকল্প অনুযায়ী খাত বাছুন এবং অনুমোদনের অবস্থা সহজেই দেখুন।</p><a class="record-btn record-btn-primary records-intro-action" href="#expense-entry"><svg class="ui-icon" aria-hidden="true"><use href="#jv-plus"></use></svg> নতুন ব্যয় এন্ট্রি</a></div><div class="intro-decor intro-decor-expenses" aria-hidden="true"><span class="intro-illustration"><svg class="ui-icon"><use href="#jv-receipt"></use></svg></span><span class="intro-decor-dots"></span></div></section>
@@ -37,11 +48,15 @@ include 'layout_top.php';?>
         <div class="record-surface-header"><div class="surface-header-title"><span class="surface-step">01</span><div><span class="surface-kicker">NEW TRANSACTION</span><h2 id="expense-form-heading" data-form-title>ব্যয় এন্ট্রি করুন</h2><p>তারিখ, খাত ও টাকার পরিমাণ ঠিকভাবে পূরণ করুন।</p></div></div><span class="surface-header-tag" data-form-badge>নতুন এন্ট্রি</span></div>
         <form method="post" class="record-form" id="expenseForm" data-edit-form="expense">
             <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>"><input type="hidden" id="action" name="action" value="add"><input type="hidden" id="rid" name="id" value="">
-            <div class="record-field"><label for="pid">প্রকল্প <span class="required" aria-label="required">*</span></label><select id="pid" name="project_id" required><option value="" selected disabled>প্রকল্প নির্বাচন করুন</option><?php foreach ($formProjects as $p): ?><option value="<?= (int) $p['id'] ?>" data-can-add="<?= can('add_expense', (int) $p['id']) ? '1' : '0' ?>" data-can-edit="<?= can('edit_expense', (int) $p['id']) ? '1' : '0' ?>"><?= e($p['title']) ?></option><?php endforeach; ?></select></div>
+            <div class="record-field"><label for="pid">প্রকল্প <span class="required" aria-label="required">*</span></label><select id="pid" name="project_id" required><option value="" selected disabled>প্রকল্প নির্বাচন করুন</option><?php foreach ($formProjects as $p): ?><option value="<?= (int) $p['id'] ?>" data-can-add="<?= can('add_expense', (int) $p['id']) ? '1' : '0' ?>" data-can-edit="<?= can('edit_expense', (int) $p['id']) ? '1' : '0' ?>" data-budget-access="<?= isset($projectBudgetInfo[(int)$p['id']]) ? '1' : '0' ?>" data-project-budget="<?= e($projectBudgetInfo[(int)$p['id']]['budget'] ?? '') ?>" data-project-remaining="<?= e($projectBudgetInfo[(int)$p['id']]['remaining'] ?? '') ?>"><?= e($p['title']) ?></option><?php endforeach; ?></select></div>
             <div class="record-field"><label for="hid">ব্যয়ের খাত <span class="required" aria-label="required">*</span></label><select id="hid" name="head_id" required><option value="" selected disabled>প্রথমে প্রকল্প নির্বাচন করুন</option><?php foreach ($heads as $h): ?><option data-project="<?= (int) $h['project_id'] ?>" value="<?= (int) $h['id'] ?>" hidden disabled><?= e($h['name']) ?></option><?php endforeach; ?></select><span class="field-hint" id="expense-head-hint" role="status">প্রকল্প অনুযায়ী ব্যয়ের খাত দেখাবে।</span></div>
             <div class="record-field"><label for="emp">অগ্রিম গ্রহণকারী কর্মী <span class="optional">(ঐচ্ছিক)</span></label><select id="emp" name="advance_employee_id"><option value="0">সাধারণ প্রকল্প ব্যয়</option><?php foreach ($employees as $u): ?><option value="<?= (int) $u['id'] ?>"><?= e($u['name']) ?></option><?php endforeach; ?></select><span class="field-hint">কর্মীর অগ্রিম থেকে খরচ হলে সেই প্রকল্পে নির্ধারিত কর্মী বাছুন।</span></div>
+            <div class="record-budget-overview record-col-full" role="group" aria-label="Project budget summary">
+                <div class="record-field"><label for="expenseProjectBudget">মোট নির্ধারিত বাজেট</label><input id="expenseProjectBudget" type="text" readonly aria-readonly="true" placeholder="প্রকল্প নির্বাচন করুন" tabindex="0"></div>
+                <div class="record-field"><label for="expenseProjectRemaining">অবশিষ্ট</label><input id="expenseProjectRemaining" type="text" readonly aria-readonly="true" placeholder="প্রকল্প নির্বাচন করুন" tabindex="0"></div>
+            </div>
             <div class="record-field"><label for="dt">ব্যয়ের তারিখ <span class="required" aria-label="required">*</span></label><input id="dt" type="date" name="entry_date" value="<?= date('Y-m-d') ?>" placeholder="দিন / মাস / বছর" required></div>
-            <div class="record-field"><label for="amt">টাকার পরিমাণ (৳) <span class="required" aria-label="required">*</span></label><input id="amt" type="number" min="0.01" step="0.01" max="999999999999.99" name="amount" placeholder="যেমন: 12500.00" inputmode="decimal" required></div>
+            <div class="record-field"><label for="amt">ব্যয়ের পরিমাণ (৳) <span class="required" aria-label="required">*</span></label><input id="amt" type="number" min="0.01" step="0.01" max="999999999999.99" name="amount" placeholder="যেমন: 12500.00" inputmode="decimal" required></div>
             <div class="record-field record-col-full"><label for="desc">ব্যয়ের বিবরণ <span class="optional">(ঐচ্ছিক)</span></label><input id="desc" name="description" type="text" placeholder="যেমন: সিমেন্ট ও বালু পরিবহন খরচ" autocomplete="off"></div>
             <div class="record-form-actions"><p><svg class="ui-icon" aria-hidden="true"><use href="#jv-check"></use></svg> সংরক্ষণের পর ব্যয়টি অনুমোদনের অপেক্ষায় থাকবে।</p><div class="record-form-buttons"><button class="record-btn record-btn-secondary" type="button" id="cancelExpenseEdit" hidden>সংশোধন বাতিল</button><button class="record-btn record-btn-primary" type="submit" id="expenseSaveButton"><svg class="ui-icon" aria-hidden="true"><use href="#jv-check"></use></svg> ব্যয় সংরক্ষণ</button></div></div>
         </form>
@@ -80,5 +95,5 @@ include 'layout_top.php';?>
         <?php endif; ?>
     </section>
 </div>
-<script src="assets/records-ui.js?v=1.0.0" defer></script>
+<script src="assets/records-ui.js?v=1.1.0" defer></script>
 <?php include 'layout_bottom.php'; ?>

@@ -158,3 +158,7 @@ body.jv-redesign .records-page .sr-only{position:absolute;width:1px;height:1px;p
 @media(max-width:375px){body.jv-redesign .records-metrics{grid-template-columns:minmax(0,1fr)}body.jv-redesign .records-kicker{letter-spacing:.9px;font-size:9px}body.jv-redesign .record-metric{padding:15px 18px}body.jv-redesign .record-metric strong{font-size:24px}body.jv-redesign .record-surface-header .record-count{display:none}body.jv-redesign .record-form-buttons{flex-direction:column}body.jv-redesign .records-toolbar{grid-template-columns:minmax(0,1fr)}}
 @media(prefers-reduced-motion:reduce){body.jv-redesign .records-page *{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
 @media print{body.jv-redesign .records-page .records-intro-action,body.jv-redesign .records-page .records-toolbar,body.jv-redesign .records-page .records-pagination,body.jv-redesign .records-page .record-row-actions,body.jv-redesign .records-page .record-form{display:none!important}body.jv-redesign .records-page .records-table tbody tr[hidden]{display:table-row!important}}
+
+body.jv-redesign .record-budget-overview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;padding:16px;border-radius:14px;border:1px solid var(--rec-border);background:var(--rec-soft)}
+body.jv-redesign .record-budget-overview .record-field input[readonly]{background:var(--rec-card);font-weight:750;font-variant-numeric:tabular-nums;cursor:default}
+@media(max-width:560px){body.jv-redesign .record-budget-overview{grid-template-columns:minmax(0,1fr)}}

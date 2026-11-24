@@ -83,6 +83,23 @@
     const idInput = document.getElementById('rid');
     const title = page.querySelector('[data-form-title]');
     const badge = page.querySelector('[data-form-badge]');
+    const budgetField = document.getElementById('expenseProjectBudget');
+    const remainingField = document.getElementById('expenseProjectRemaining');
+    function updateProjectBudget() {
+      if (!budgetField || !remainingField) return;
+      const selected = project?.selectedOptions[0];
+      if (!selected?.value) {
+        budgetField.value = '';
+        remainingField.value = '';
+      } else if (selected.dataset.budgetAccess !== '1') {
+        budgetField.value = 'কোনো অনুমতি নেই';
+        remainingField.value = 'কোনো অনুমতি নেই';
+      } else {
+        budgetField.value = selected.dataset.projectBudget || 'বাজেট সেট হয়নি';
+        remainingField.value = selected.dataset.projectRemaining || '---';
+      }
+    }
+
 
     function toggleProjectPermissions(editMode) {
       if (!project) return;
@@ -93,6 +110,7 @@
       if (project.selectedOptions[0]?.disabled) project.value = '';
     }
     function filterHeads() {
+      updateProjectBudget();
       if (!head || !project) return;
       let optionsFound = 0;
       Array.from(head.options).forEach((option) => {
