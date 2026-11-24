@@ -2,7 +2,7 @@
 require_once __DIR__.'/phase5_lib.php';require_login();p5_admin();p5_require_ready();$pdo=db();
 $search=trim(is_string($_GET['q']??null)?$_GET['q']:'');$search=function_exists('mb_substr')?mb_substr($search,0,80,'UTF-8'):substr($search,0,80);
 $action=(string)($_GET['action']??'');
-$known=['auth.login','project.created','expense.created','expense.edited','expense.approved','advance.saved','budget.saved','inventory.item.created','inventory.in','inventory.out','supplier.created','purchase.created','payment.created','user.created','permission.updated','year.created','expense_head.created','expense_head.edited'];
+$known=['auth.login','project.created','expense.created','expense.edited','expense.approved','advance.saved','budget.saved','budget.revised','inventory.item.created','inventory.in','inventory.out','supplier.created','purchase.created','payment.created','user.created','permission.updated','year.created','expense_head.created','expense_head.edited'];
 if(!in_array($action,$known,true))$action='';
 $from=(string)($_GET['from']??'');$to=(string)($_GET['to']??'');if(!valid_date($from))$from='';if(!valid_date($to))$to='';
 $where=['1=1'];$params=[];
